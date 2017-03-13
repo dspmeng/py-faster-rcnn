@@ -49,21 +49,27 @@ LOG="experiments/logs/${MY_NAME}_${NET}_${EXTRA_ARGS_SLUG}.txt.`date +'%Y-%m-%d_
 exec &> >(tee -a "$LOG")
 echo Logging output to "$LOG"
 
-time ./tools/train_net.py --gpu ${GPU_ID} \
-  --solver models/${PT_DIR}/${NET}/${MY_NAME}/solver.prototxt \
-  --weights data/faster_rcnn_models/${NET}_faster_rcnn_final.caffemodel \
-  --imdb ${TRAIN_IMDB} \
-  --iters ${ITERS} \
-  --cfg experiments/cfgs/${MY_NAME}.yml \
-  ${EXTRA_ARGS}
+NET_FINAL="output/colorchecker/gehler_trainval/vgg16_colorchecker_iter_10000.caffemodel"
+if [ -e $NET_FINAL ];then
+    echo using $NET_FINAL
+else
+    time ./tools/train_net.py --gpu ${GPU_ID} \
+      --solver models/${PT_DIR}/${NET}/${MY_NAME}/solver.prototxt \
+      --weights data/imagenet_models/${NET}.v2.caffemodel \
+      --imdb ${TRAIN_IMDB} \
+      --iters ${ITERS} \
+      --cfg experiments/cfgs/${MY_NAME}.yml \
+      ${EXTRA_ARGS}
 
-set +x
-NET_FINAL=`grep -B 1 "done solving" ${LOG} | grep "Wrote snapshot" | awk '{print $4}'`
-set -x
+    set +x
+    NET_FINAL=`grep -B 1 "done solving" ${LOG} | grep "Wrote snapshot" | awk '{print $4}'`
+    set -x
+fi
 
 time ./tools/test_net.py --gpu ${GPU_ID} \
   --def models/${PT_DIR}/${NET}/${MY_NAME}/test.prototxt \
   --net ${NET_FINAL} \
   --imdb ${TEST_IMDB} \
   --cfg experiments/cfgs/${MY_NAME}.yml \
+  --vis \
   ${EXTRA_ARGS}
