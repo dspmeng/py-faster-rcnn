@@ -116,6 +116,18 @@ class imdb(object):
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
 
+    def append_noisy_images(self):
+        num_images = self.num_images
+        for i in xrange(num_images):
+            boxes = self.roidb[i]['boxes'].copy()
+            entry = {'boxes' : boxes,
+                     'gt_overlaps' : self.roidb[i]['gt_overlaps'],
+                     'gt_classes' : self.roidb[i]['gt_classes'],
+                     'flipped' : self.roidb[i]['flipped'],
+                     'noisy' : True}
+            self.roidb.append(entry)
+        self._image_index = self._image_index * 2
+
     def evaluate_recall(self, candidate_boxes=None, thresholds=None,
                         area='all', limit=None):
         """Evaluate detection proposal recall metrics.

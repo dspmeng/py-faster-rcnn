@@ -117,6 +117,10 @@ def get_training_roidb(imdb):
         print 'Appending horizontally-flipped training examples...'
         imdb.append_flipped_images()
         print 'done'
+    if cfg.TRAIN.USE_NOISY:
+        print 'Appending noisy images...'
+        imdb.append_noisy_images()
+        print 'done'
 
     print 'Preparing training data...'
     rdl_roidb.prepare_roidb(imdb)

@@ -137,6 +137,13 @@ def _get_image_blob(roidb, scale_inds):
         im = cv2.imread(roidb[i]['image'])
         if roidb[i]['flipped']:
             im = im[:, ::-1, :]
+        if 'noisy' in roidb[i] and roidb[i]['noisy']:
+            noise = np.zeros(im.shape, dtype=np.uint8)
+            cv2.randn(noise, (0,)*3, (200,)*3)
+            im += noise
+            #cv2.imshow('noisy', im)
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
                                         cfg.TRAIN.MAX_SIZE)
