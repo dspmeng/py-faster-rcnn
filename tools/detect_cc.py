@@ -47,14 +47,12 @@ def vis_detections(im_name, im, class_name, dets, thresh=0.5):
                           bbox[3] - bbox[1], fill=False,
                           edgecolor='red', linewidth=3.5)
             )
-        ax.text(bbox[0], bbox[1] - 2,
-                '{:s} {:.3f}'.format(class_name, score),
-                bbox=dict(facecolor='blue', alpha=0.5),
-                fontsize=14, color='white')
+        #ax.text(bbox[0], bbox[1] - 2,
+        #        '{:s} {:.3f}'.format(class_name, score),
+        #        bbox=dict(facecolor='blue', alpha=0.5),
+        #        fontsize=14, color='white')
 
-    ax.set_title(('{} detections with '
-                  'p({} | box) >= {:.1f}').format(im_name, class_name,
-                                                  thresh),
+    ax.set_title(('{}: {} ({})').format(im_name, class_name, score),
                   fontsize=14)
     plt.axis('off')
     plt.tight_layout()
@@ -92,10 +90,11 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Faster R-CNN demo')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=0, type=int)
+                        default=1, type=int)
     parser.add_argument('--cpu', dest='cpu_mode',
                         help='Use CPU mode (overrides --gpu)',
                         action='store_true')
+    parser.add_argument("model")
     parser.add_argument("image")
 
     args = parser.parse_args()
@@ -108,7 +107,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     prototxt = 'models/gehler/VGG16/colorchecker/test.prototxt'
-    caffemodel = 'output/colorchecker/gehler_trainval/vgg16_colorchecker_iter_10000.caffemodel'
+    caffemodel = args.model
 
     if not os.path.isfile(caffemodel):
         raise IOError(('{:s} not found.\nDid you run ./experiments/scripts/colorchecker.sh'
