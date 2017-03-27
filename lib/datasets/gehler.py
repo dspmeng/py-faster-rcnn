@@ -155,7 +155,12 @@ class gehler(imdb):
         overlaps[0, 1] = 1.0
         seg_areas[0] = (boxes[0, 2] - boxes[0, 0] + 1) * (boxes[0, 3] - boxes[0, 1] + 1)
         for i in range(1, num_objs):
-            boxes[i, :] = np.concatenate([vertices[4*i:4*i+4,:].min(0), vertices[4*i:4*i+4,:].max(0)])
+            points = vertices[4*i:4*i+4,:].astype(np.int32)
+            M = cv2.moments(points)
+            cx = int(M['m10']/M['m00'])
+            cy = int(M['m01']/M['m00'])
+            hf_arclen = int(np.floor(np.sqrt(M['m00'])) / 3)
+            boxes[i, :] = [cx-hf_arclen, cy-hf_arclen, cx+hf_arclen, cy+hf_arclen]
             cls = i + 1
             gt_classes[i] = cls
             overlaps[i, cls] = 1.0
@@ -163,7 +168,7 @@ class gehler(imdb):
             if vis:
                 cv2.rectangle(img, (boxes[i,0], boxes[i,1]), (boxes[i,2], boxes[i,3]), (0, 255, 0), 1)
         if vis:
-            cv2.imshow('image',img)
+            cv2.imshow(self.image_path_from_index(index),img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
