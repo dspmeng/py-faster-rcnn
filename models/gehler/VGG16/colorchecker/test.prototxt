@@ -468,7 +468,7 @@ layer {
   python_param {
     module: 'rpn.proposal_layer'
     layer: 'ProposalLayer'
-    param_str: "'feat_stride': 16"
+    param_str: "'feat_stride': 16\n'scales': !!python/tuple [0.125, 0.5, 2]"
   }
 }
 
@@ -564,7 +564,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 2
+    num_output: 26
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -589,7 +589,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 8
+    num_output: 104
     weight_filler {
       type: "gaussian"
       std: 0.001

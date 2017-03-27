@@ -8,7 +8,7 @@ layer {
   python_param {
     module: 'roi_data_layer.layer'
     layer: 'RoIDataLayer'
-    param_str: "'num_classes': 2"
+    param_str: "'num_classes': 26"
   }
 }
 
@@ -439,7 +439,7 @@ layer {
   python_param {
     module: 'rpn.anchor_target_layer'
     layer: 'AnchorTargetLayer'
-    param_str: "'feat_stride': 16"
+    param_str: "'feat_stride': 16\n'scales': !!python/tuple [0.125, 0.5, 2]"
   }
 }
 
@@ -527,7 +527,7 @@ layer {
   python_param {
     module: 'rpn.proposal_target_layer'
     layer: 'ProposalTargetLayer'
-    param_str: "'num_classes': 2"
+    param_str: "'num_classes': 26"
   }
 }
 
@@ -617,7 +617,7 @@ layer {
     lr_mult: 2
   }
   inner_product_param {
-    num_output: 2
+    num_output: 26
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -640,7 +640,7 @@ layer {
     lr_mult: 2
   }
   inner_product_param {
-    num_output: 8
+    num_output: 104
     weight_filler {
       type: "gaussian"
       std: 0.001

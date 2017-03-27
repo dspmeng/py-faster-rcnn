@@ -25,7 +25,11 @@ class gehler(imdb):
         self._image_set = image_set
         self._data_path = os.path.join(cfg.DATA_DIR, 'gehler')
         self._classes = ('__background__', # always index 0
-                         'colorchecker')
+                         'colorchecker',
+                         'cb11', 'cb12', 'cb13', 'cb14', 'cb15', 'cb16',
+                         'cb21', 'cb22', 'cb23', 'cb24', 'cb25', 'cb26',
+                         'cb31', 'cb32', 'cb33', 'cb34', 'cb35', 'cb36',
+                         'cb41', 'cb42', 'cb43', 'cb44', 'cb45', 'cb46')
         self._class_to_ind = dict(zip(self.classes, xrange(self.num_classes)))
         self._image_index = self._load_image_set_index()
         # Default to roidb handler
@@ -113,42 +117,55 @@ class gehler(imdb):
                 'Path does not exist: {}'.format(filename)
         """
         Gehler coordinate file has following format:
-        width          height
-        top-left-x     top-left-y
-        top-right-x    top-right-y
-        bottom-left-x  bottom-left-y
-        bottom-right-x bottom-right-y
+        width              height
+        cc-top-left-x      cc-top-left-y
+        cc-top-right-x     cc-top-right-y
+        cc-bottom-left-x   cc-bottom-left-y
+        cc-bottom-right-x  cc-bottom-right-y
+        cb-top-left-x      cb-top-left-y
+        cb-top-right-x     cb-top-right-y
+        cb-bottom-right-x  cb-bottom-right-y
+        cb-bottom-left-x   cb-bottom-left-y
+        ...
         """
         img = cv2.imread(self.image_path_from_index(index))
         with open(filename) as f:
-            width, height = [float(i) for i in f.next().split()]
-            vertices = []
-            for i in range(4):
-                x, y = f.next().split()
-                x = self._clamp(float(x) * img.shape[1] / width, 0, img.shape[1] - 1);
-                y = self._clamp(float(y) * img.shape[0] / height, 0, img.shape[0] - 1);
-                vertices.append([int(x), int(y)])
-            vertices = np.array(vertices, np.uint16)
-        x1, y1 = vertices.min(0)
-        x2, y2 = vertices.max(0)
+            width, height = [float(i) for i in f.readline().split()]
+            vertices = [map(float, line.split()) for line in f.readlines()]
+            vertices[2], vertices[3] = vertices[3], vertices[2]
+            vertices = np.array(vertices)
+            vertices[:,0] = [self._clamp(float(x) * img.shape[1] / width, 0, img.shape[1] - 1)
+                             for x in vertices[:,0]]
+            vertices[:,1] = [self._clamp(float(y) * img.shape[0] / height, 0, img.shape[0] - 1)
+                             for y in vertices[:,1]]
+            vertices.astype(np.uint16)
 
-        num_objs = 1
+        num_objs = vertices.shape[0] / 4
         boxes = np.zeros((num_objs, 4), dtype=np.uint16)
-        gt_classes = np.zeros((num_objs), dtype=np.int32)
+        gt_classes = np.zeros(num_objs, dtype=np.int32)
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
         # "Seg" area for gehler is just the box area
         seg_areas = np.zeros((num_objs), dtype=np.float32)
 
-        cls = self._class_to_ind['colorchecker']
-        boxes[0, :] = [x1, y1, x2, y2]
-        # Uncomment below to check bbox manually
-        #cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 1)
-        #cv2.imshow('image',img)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-        gt_classes[0] = cls
-        overlaps[0, cls] = 1.0
-        seg_areas[0] = (x2 - x1 + 1) * (y2 - y1 + 1)
+        vis = False
+        boxes[0, :] = np.concatenate([vertices[0:4,:].min(0), vertices[0:4,:].max(0)])
+        if vis:
+            cv2.rectangle(img, (boxes[0,0], boxes[0,1]), (boxes[0,2], boxes[0,3]), (0, 255, 0), 1)
+        gt_classes[0] = 1
+        overlaps[0, 1] = 1.0
+        seg_areas[0] = (boxes[0, 2] - boxes[0, 0] + 1) * (boxes[0, 3] - boxes[0, 1] + 1)
+        for i in range(1, num_objs):
+            boxes[i, :] = np.concatenate([vertices[4*i:4*i+4,:].min(0), vertices[4*i:4*i+4,:].max(0)])
+            cls = i + 1
+            gt_classes[i] = cls
+            overlaps[i, cls] = 1.0
+            seg_areas[i] = (boxes[i, 2] - boxes[i, 0] + 1) * (boxes[i, 3] - boxes[i, 1] + 1)
+            if vis:
+                cv2.rectangle(img, (boxes[i,0], boxes[i,1]), (boxes[i,2], boxes[i,3]), (0, 255, 0), 1)
+        if vis:
+            cv2.imshow('image',img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
         overlaps = scipy.sparse.csr_matrix(overlaps)
 

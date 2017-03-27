@@ -26,7 +26,11 @@ import argparse
 import pdb
 
 CLASSES = ('__background__',
-           'colorchecker')
+           'colorchecker',
+           'cb11', 'cb12', 'cb13', 'cb14', 'cb15', 'cb16',
+           'cb21', 'cb22', 'cb23', 'cb24', 'cb25', 'cb26',
+           'cb31', 'cb32', 'cb33', 'cb34', 'cb35', 'cb36',
+           'cb41', 'cb42', 'cb43', 'cb44', 'cb45', 'cb46')
 
 def vis_detections(im_name, im, class_name, dets, thresh=0.5):
     """Draw detected bounding boxes."""
@@ -74,7 +78,7 @@ def demo(net, image_name):
            '{:d} object proposals').format(timer.total_time, boxes.shape[0])
 
     # Visualize detections for each class
-    CONF_THRESH = 0.1
+    CONF_THRESH = 0.9
     NMS_THRESH = 0.3
     for cls_ind, cls in enumerate(CLASSES[1:]):
         cls_ind += 1 # because we skipped background
@@ -83,7 +87,9 @@ def demo(net, image_name):
         dets = np.hstack((cls_boxes,
                           cls_scores[:, np.newaxis])).astype(np.float32)
         keep = nms(dets, NMS_THRESH)
-        dets = dets[keep, :]
+        scs = dets[:, 4]
+        keep = np.argsort(scs, -1)
+        dets = dets[keep[-1:], :]
         vis_detections(image_name, im, cls, dets, thresh=CONF_THRESH)
 
 def parse_args():
