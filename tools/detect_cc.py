@@ -51,12 +51,13 @@ def vis_detections(im_name, im, class_name, dets, thresh=0.5):
                           bbox[3] - bbox[1], fill=False,
                           edgecolor='red', linewidth=3.5)
             )
-        ax.text(bbox[0], bbox[1] - 2,
-                '{:s} {:.3f}'.format(class_name, score),
-                bbox=dict(facecolor='blue', alpha=0.5),
-                fontsize=14, color='white')
+        #ax.text(bbox[0], bbox[1] - 2,
+        #        '{:s} {:.3f}'.format(class_name, score),
+        #        bbox=dict(facecolor='blue', alpha=0.5),
+        #        fontsize=14, color='white')
 
-    ax.set_title('{}'.format(im_name), fontsize=14)
+    ax.set_title(('{}: {} ({})').format(im_name, class_name, score),
+                  fontsize=14)
     plt.axis('off')
     plt.tight_layout()
     plt.draw()
@@ -77,7 +78,7 @@ def demo(net, image_name):
            '{:d} object proposals').format(timer.total_time, boxes.shape[0])
 
     # Visualize detections for each class
-    CONF_THRESH = 0.1
+    CONF_THRESH = 0.9
     NMS_THRESH = 0.3
     for cls_ind, cls in enumerate(CLASSES[1:]):
         cls_ind += 1 # because we skipped background
@@ -89,7 +90,6 @@ def demo(net, image_name):
         scs = dets[:, 4]
         keep = np.argsort(scs, -1)
         dets = dets[keep[-1:], :]
-        #dets = dets[keep,:]
         vis_detections(image_name, im, cls, dets, thresh=CONF_THRESH)
 
 def parse_args():

@@ -13,7 +13,7 @@ from generate_anchors import generate_anchors
 from fast_rcnn.bbox_transform import bbox_transform_inv, clip_boxes
 from fast_rcnn.nms_wrapper import nms
 
-DEBUG = True
+DEBUG = False
 
 class ProposalLayer(caffe.Layer):
     """
@@ -32,7 +32,6 @@ class ProposalLayer(caffe.Layer):
 
         if DEBUG:
             print 'feat_stride: {}'.format(self._feat_stride)
-            print 'anchor_scales: {}'.format(anchor_scales)
             print 'anchors:'
             print self._anchors
 
