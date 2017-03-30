@@ -63,6 +63,9 @@ __C.TRAIN.USE_FLIPPED = True
 # Use noisy images during training?
 __C.TRAIN.USE_NOISY = False
 
+# Use cropped images during training?
+__C.TRAIN.USE_CROPPED = False
+
 # Train bounding-box regressors
 __C.TRAIN.BBOX_REG = True
 

@@ -99,6 +99,10 @@ class imdb(object):
       return [PIL.Image.open(self.image_path_at(i)).size[0]
               for i in xrange(self.num_images)]
 
+    def _get_heights(self):
+      return [PIL.Image.open(self.image_path_at(i)).size[1]
+              for i in xrange(self.num_images)]
+
     def append_flipped_images(self):
         num_images = self.num_images
         widths = self._get_widths()
@@ -112,7 +116,10 @@ class imdb(object):
             entry = {'boxes' : boxes,
                      'gt_overlaps' : self.roidb[i]['gt_overlaps'],
                      'gt_classes' : self.roidb[i]['gt_classes'],
-                     'flipped' : True}
+                     'flipped' : True,
+                     'noisy' : self.roidb[i]['noisy'],
+                     'cropped' : self.roidb[i]['cropped'],
+                     'crop' : self.roidb[i]['crop']}
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
 
@@ -124,7 +131,33 @@ class imdb(object):
                      'gt_overlaps' : self.roidb[i]['gt_overlaps'],
                      'gt_classes' : self.roidb[i]['gt_classes'],
                      'flipped' : self.roidb[i]['flipped'],
-                     'noisy' : True}
+                     'noisy' : True,
+                     'cropped' : self.roidb[i]['cropped'],
+                     'crop' : self.roidb[i]['crop']}
+            self.roidb.append(entry)
+        self._image_index = self._image_index * 2
+
+    def append_cropped_images(self):
+        num_images = self.num_images
+        widths = self._get_widths()
+        heights = self._get_heights()
+        for i in xrange(num_images):
+            boxes = self.roidb[i]['boxes'].copy()
+            print boxes[0], widths[i], heights[i]
+            crop = np.array([np.random.random_integers(boxes[0, 0] * 3 / 4, boxes[0, 0]),
+                             np.random.random_integers(boxes[0, 1] * 3 / 4, boxes[0, 1]),
+                             np.random.randint(boxes[0, 2], min(boxes[0, 2] * 5 / 4, widths[i])),
+                             np.random.randint(boxes[0, 3], min(boxes[0, 3] * 5 / 4, heights[i]))],
+                            dtype = np.int32)
+            boxes[:, 0::2] -= crop[0]
+            boxes[:, 1::2] -= crop[1]
+            entry = {'boxes' : boxes,
+                     'gt_overlaps' : self.roidb[i]['gt_overlaps'],
+                     'gt_classes' : self.roidb[i]['gt_classes'],
+                     'flipped' : self.roidb[i]['flipped'],
+                     'noisy' : self.roidb[i]['noisy'],
+                     'cropped' : True,
+                     'crop' : crop}
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
 

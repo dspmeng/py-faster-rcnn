@@ -12,6 +12,7 @@ import numpy.random as npr
 import cv2
 from fast_rcnn.config import cfg
 from utils.blob import prep_im_for_blob, im_list_to_blob
+from matplotlib import pyplot as plt
 
 def get_minibatch(roidb, num_classes):
     """Given a roidb, construct a minibatch sampled from it."""
@@ -144,6 +145,17 @@ def _get_image_blob(roidb, scale_inds):
             #cv2.imshow('noisy', im)
             #cv2.waitKey(0)
             #cv2.destroyAllWindows()
+        if 'cropped' in roidb[i] and roidb[i]['cropped']:
+            crop = roidb[i]['crop']
+            im = np.array(im[crop[1]:crop[3], crop[0]:crop[2], :])
+            [cv2.rectangle(im, (box[0], box[1]), (box[2], box[3]), (0,0,255), 1)
+             for box in roidb[i]['boxes']]
+            print roidb[i]['image']
+            print 'crop {}'.format(crop)
+            print 'box {}'.format(box)
+            #plt.imshow(im)
+            #plt.title(roidb[i]['image'])
+            #plt.show()
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
                                         cfg.TRAIN.MAX_SIZE)

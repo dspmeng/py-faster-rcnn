@@ -121,6 +121,10 @@ def get_training_roidb(imdb):
         print 'Appending noisy images...'
         imdb.append_noisy_images()
         print 'done'
+    if cfg.TRAIN.USE_CROPPED:
+        print 'Appending cropped images...'
+        imdb.append_cropped_images()
+        print 'done'
 
     print 'Preparing training data...'
     rdl_roidb.prepare_roidb(imdb)

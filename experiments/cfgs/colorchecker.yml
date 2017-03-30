@@ -8,5 +8,6 @@ TRAIN:
   PROPOSAL_METHOD: gt
   BG_THRESH_LO: 0.0
   USE_NOISY: False
+  USE_CROPPED: True
 TEST:
   HAS_RPN: True

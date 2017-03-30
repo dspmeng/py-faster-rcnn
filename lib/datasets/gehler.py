@@ -144,8 +144,9 @@ class gehler(imdb):
         boxes = np.zeros((num_objs, 4), dtype=np.uint16)
         gt_classes = np.zeros(num_objs, dtype=np.int32)
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
-        # "Seg" area for gehler is just the box area
+        # "Seg" area for gehler is just the color checker area
         seg_areas = np.zeros((num_objs), dtype=np.float32)
+        crop = np.zeros((4), dtype=np.int32)
 
         vis = False
         boxes[0, :] = np.concatenate([vertices[0:4,:].min(0), vertices[0:4,:].max(0)])
@@ -173,6 +174,9 @@ class gehler(imdb):
                 'gt_classes': gt_classes,
                 'gt_overlaps' : overlaps,
                 'flipped' : False,
+                'noisy' : False,
+                'cropped' : False,
+                'crop' : crop,
                 'seg_areas' : seg_areas}
 
     def evaluate_detections(self, all_boxes, output_dir):
