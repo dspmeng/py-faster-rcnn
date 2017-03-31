@@ -21,9 +21,13 @@ from utils.timer import Timer
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io as sio
-import caffe, os, sys, cv2
+import os, sys, cv2
 import argparse
+import rpn.proposal_layer as rpnpl
 import pdb
+
+os.environ['GLOG_minloglevel'] = '1'
+import caffe
 
 CLASSES = ('__background__',
            'colorchecker',
@@ -51,10 +55,10 @@ def vis_detections(im_name, im, class_name, dets, thresh=0.5):
                           bbox[3] - bbox[1], fill=False,
                           edgecolor='red', linewidth=3.5)
             )
-        #ax.text(bbox[0], bbox[1] - 2,
-        #        '{:s} {:.3f}'.format(class_name, score),
-        #        bbox=dict(facecolor='blue', alpha=0.5),
-        #        fontsize=14, color='white')
+        ax.text(bbox[0], bbox[1] - 2,
+                '{:s} {:.3f}'.format(class_name, score),
+                bbox=dict(facecolor='blue', alpha=0.5),
+                fontsize=14, color='white')
 
     ax.set_title(('{}: {} ({})').format(im_name, class_name, score),
                   fontsize=14)
@@ -64,6 +68,7 @@ def vis_detections(im_name, im, class_name, dets, thresh=0.5):
 
 def demo(net, image_name):
     """Detect object classes in an image using pre-computed object proposals."""
+    rpnpl.im_name = image_name
 
     # Load the demo image
     im_file = image_name

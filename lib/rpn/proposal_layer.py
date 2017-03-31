@@ -12,8 +12,12 @@ from fast_rcnn.config import cfg
 from generate_anchors import generate_anchors
 from fast_rcnn.bbox_transform import bbox_transform_inv, clip_boxes
 from fast_rcnn.nms_wrapper import nms
+import cv2
+from matplotlib import pyplot as plt
 
 DEBUG = False
+
+im_name = None
 
 class ProposalLayer(caffe.Layer):
     """
@@ -127,6 +131,8 @@ class ProposalLayer(caffe.Layer):
         # 3. remove predicted boxes with either height or width < threshold
         # (NOTE: convert min_size to input image scale stored in im_info[2])
         keep = _filter_boxes(proposals, min_size * im_info[2])
+        if not keep.size:
+            keep = _filter_boxes(proposals, min_size / 4  * im_info[2])
         assert keep.size, 'no proposal passed check against RPN_MIN_SIZE'
         proposals = proposals[keep, :]
         scores = scores[keep]
@@ -148,6 +154,10 @@ class ProposalLayer(caffe.Layer):
         proposals = proposals[keep, :]
         scores = scores[keep]
 
+        if im_name:
+            print 'proposals for {}'.format(im_name)
+            _show_proposals(proposals, scores, im_info[2])
+
         # Output rois blob
         # Our RPN implementation only supports a single input image, so all
         # batch inds are 0
@@ -168,6 +178,23 @@ class ProposalLayer(caffe.Layer):
     def reshape(self, bottom, top):
         """Reshaping happens during the call to forward."""
         pass
+
+def _show_proposals(proposals, scores, im_scale):
+    how_many = np.where(scores > 0.99)[0]
+    im = cv2.imread(im_name)
+    im = cv2.resize(im, None, None, fx=im_scale, fy=im_scale,
+                    interpolation=cv2.INTER_LINEAR)
+    [cv2.rectangle(im, (p[0], p[1]), (p[2], p[3]), (0,255,0), 1)
+        for p in proposals[how_many,:]]
+    [plt.text(proposals[i][0], proposals[i][1] - 2,
+              '{:.4f}'.format(float(scores[i])),
+              fontsize=14, color='white')
+     for i in how_many]
+    print proposals[how_many,:]
+    plt.imshow(im)
+    plt.title('{} proposals for {}x{} {}'.format
+        (proposals.shape[0], im.shape[1], im.shape[0], im_name))
+    plt.show()
 
 def _filter_boxes(boxes, min_size):
     """Remove all boxes with any side smaller than min_size."""

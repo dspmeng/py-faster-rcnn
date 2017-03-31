@@ -150,9 +150,8 @@ def _get_image_blob(roidb, scale_inds):
             im = np.array(im[crop[1]:crop[3], crop[0]:crop[2], :])
             [cv2.rectangle(im, (box[0], box[1]), (box[2], box[3]), (0,0,255), 1)
              for box in roidb[i]['boxes']]
-            print roidb[i]['image']
-            print 'crop {}'.format(crop)
-            print 'box {}'.format(box)
+            #print 'crop: {}'.format(crop)
+            #print 'box:\n{}'.format(roidb[i]['boxes'])
             #plt.imshow(im)
             #plt.title(roidb[i]['image'])
             #plt.show()
