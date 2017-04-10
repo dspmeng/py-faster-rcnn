@@ -180,7 +180,7 @@ class ProposalLayer(caffe.Layer):
         pass
 
 def _show_proposals(proposals, scores, im_scale):
-    how_many = np.where(scores > 0.99)[0]
+    how_many = np.where(scores > 0.9)[0]
     im = cv2.imread(im_name)
     im = cv2.resize(im, None, None, fx=im_scale, fy=im_scale,
                     interpolation=cv2.INTER_LINEAR)
