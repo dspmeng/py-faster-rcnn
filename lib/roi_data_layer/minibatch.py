@@ -148,13 +148,16 @@ def _get_image_blob(roidb, scale_inds):
         if 'cropped' in roidb[i] and roidb[i]['cropped']:
             crop = roidb[i]['crop']
             im = np.array(im[crop[1]:crop[3], crop[0]:crop[2], :])
-            [cv2.rectangle(im, (box[0], box[1]), (box[2], box[3]), (0,0,255), 1)
-             for box in roidb[i]['boxes']]
+            #[cv2.rectangle(im, (box[0], box[1]), (box[2], box[3]), (0,0,255), 1)
+            # for box in roidb[i]['boxes']]
             #print 'crop: {}'.format(crop)
             #print 'box:\n{}'.format(roidb[i]['boxes'])
             #plt.imshow(im)
             #plt.title(roidb[i]['image'])
             #plt.show()
+        #plt.imshow(im)
+        #plt.title(roidb[i]['image'])
+        #plt.show()
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
                                         cfg.TRAIN.MAX_SIZE)
