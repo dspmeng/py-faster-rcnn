@@ -36,15 +36,12 @@ CLASSES = ('__background__',
            'cb31', 'cb32', 'cb33', 'cb34', 'cb35', 'cb36',
            'cb41', 'cb42', 'cb43', 'cb44', 'cb45', 'cb46')
 
-def vis_detections(im_name, im, class_name, dets, thresh=0.5):
+def vis_detections(fig, ax, class_name, dets, thresh=0.5):
     """Draw detected bounding boxes."""
     inds = np.where(dets[:, -1] >= thresh)[0]
     if len(inds) == 0:
         return
 
-    im = im[:, :, (2, 1, 0)]
-    fig, ax = plt.subplots(figsize=(12, 12))
-    ax.imshow(im, aspect='equal')
     for i in inds:
         bbox = dets[i, :4]
         score = dets[i, -1]
@@ -60,15 +57,9 @@ def vis_detections(im_name, im, class_name, dets, thresh=0.5):
                 bbox=dict(facecolor='blue', alpha=0.5),
                 fontsize=14, color='white')
 
-    ax.set_title(('{}: {} ({})').format(im_name, class_name, score),
-                  fontsize=14)
-    plt.axis('off')
-    plt.tight_layout()
-    plt.draw()
-
 def demo(net, image_name):
     """Detect object classes in an image using pre-computed object proposals."""
-    rpnpl.im_name = image_name
+    #rpnpl.im_name = image_name
 
     # Load the demo image
     im_file = image_name
@@ -83,6 +74,9 @@ def demo(net, image_name):
            '{:d} object proposals').format(timer.total_time, boxes.shape[0])
 
     # Visualize detections for each class
+    im = im[:, :, (2, 1, 0)]
+    fig, ax = plt.subplots(figsize=(12, 12))
+    ax.imshow(im, aspect='equal')
     CONF_THRESH = 0.2
     NMS_THRESH = 0.3
     for cls_ind, cls in enumerate(CLASSES[1:]):
@@ -95,7 +89,13 @@ def demo(net, image_name):
         scs = dets[:, 4]
         keep = np.argsort(scs, -1)
         dets = dets[keep[-1:], :]
-        vis_detections(image_name, im, cls, dets, thresh=CONF_THRESH)
+        vis_detections(fig, ax, cls, dets, thresh=CONF_THRESH)
+    ax.set_title(('{}').format(image_name), fontsize=14)
+    fig.savefig('result_' + os.path.basename(image_name))
+    plt.axis('off')
+    plt.tight_layout()
+    plt.draw()
+
 
 def parse_args():
     """Parse input arguments."""
@@ -139,5 +139,46 @@ if __name__ == '__main__':
     for i in xrange(2):
         _, _= im_detect(net, im)
 
-    demo(net, args.image)
+    im_names = [
+        'data/gehler/videos/Colorchecker_1.avi-001.png',
+        'data/gehler/videos/Colorchecker_1.avi-002.png',
+        'data/gehler/videos/Colorchecker_1.avi-003.png',
+        'data/gehler/videos/Colorchecker_1.avi-004.png',
+        'data/gehler/videos/Colorchecker_1.avi-005.png',
+        'data/gehler/videos/Colorchecker_1.avi-006.png',
+        'data/gehler/videos/Colorchecker_1.avi-007.png',
+        'data/gehler/videos/Colorchecker_1.avi-008.png',
+        'data/gehler/videos/Colorchecker_1.avi-009.png',
+        'data/gehler/videos/Colorchecker_1.avi-010.png',
+        'data/gehler/videos/Colorchecker_1.avi-011.png',
+        'data/gehler/videos/Colorchecker_1.avi-012.png',
+        'data/gehler/videos/Colorchecker_1.avi-013.png',
+        'data/gehler/videos/Colorchecker_1.avi-014.png',
+        'data/gehler/videos/Colorchecker_1.avi-015.png',
+        'data/gehler/videos/Colorchecker_1.avi-016.png',
+        'data/gehler/videos/Colorchecker_1.avi-017.png',
+        'data/gehler/videos/Colorchecker_1.avi-018.png',
+        'data/gehler/videos/Colorchecker.avi-001.png',
+        'data/gehler/videos/Colorchecker.avi-002.png',
+        'data/gehler/videos/Colorchecker.avi-003.png',
+        'data/gehler/videos/Colorchecker.avi-004.png',
+        'data/gehler/videos/Colorchecker.avi-005.png',
+        'data/gehler/videos/Colorchecker.avi-006.png',
+        'data/gehler/videos/Colorchecker.avi-007.png',
+        'data/gehler/videos/Colorchecker.avi-008.png',
+        'data/gehler/videos/Colorchecker.avi-009.png',
+        'data/gehler/videos/Colorchecker.avi-010.png',
+        'data/gehler/videos/Colorchecker.avi-011.png',
+        'data/gehler/videos/Colorchecker.avi-012.png',
+        'data/gehler/videos/Colorchecker.avi-013.png',
+        'data/gehler/videos/Colorchecker.avi-014.png',
+        'data/gehler/videos/Colorchecker.avi-015.png',
+        'data/gehler/videos/Colorchecker.avi-016.png',
+        'data/gehler/videos/Colorchecker.avi-017.png',
+        'data/gehler/videos/Colorchecker.avi-018.png'
+    ]
+    im_names.append(args.image)
+    for img in im_names:
+        demo(net, img)
+
     plt.show()
