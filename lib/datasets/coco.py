@@ -254,6 +254,7 @@ class coco(imdb):
         gt_classes = np.zeros((num_objs), dtype=np.int32)
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
         seg_areas = np.zeros((num_objs), dtype=np.float32)
+        crop = np.zeros((4), dtype=np.int32)
 
         # Lookup table to map from COCO category ids to our internal class
         # indices
@@ -279,6 +280,9 @@ class coco(imdb):
                 'gt_classes': gt_classes,
                 'gt_overlaps' : overlaps,
                 'flipped' : False,
+                'noisy' : False,
+                'cropped' : False,
+                'crop' : crop,
                 'seg_areas' : seg_areas}
 
     def _get_box_file(self, index):

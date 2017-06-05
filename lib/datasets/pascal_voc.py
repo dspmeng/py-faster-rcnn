@@ -200,6 +200,7 @@ class pascal_voc(imdb):
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
         # "Seg" area for pascal is just the box area
         seg_areas = np.zeros((num_objs), dtype=np.float32)
+        crop = np.zeros((4), dtype=np.int32)
 
         # Load object bounding boxes into a data frame.
         for ix, obj in enumerate(objs):
@@ -221,6 +222,9 @@ class pascal_voc(imdb):
                 'gt_classes': gt_classes,
                 'gt_overlaps' : overlaps,
                 'flipped' : False,
+                'noisy' : False,
+                'cropped' : False,
+                'crop' : crop,
                 'seg_areas' : seg_areas}
 
     def _get_comp_id(self):
