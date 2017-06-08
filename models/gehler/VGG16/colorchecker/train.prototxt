@@ -669,5 +669,5 @@ layer {
   bottom: "bbox_inside_weights"
   bottom: "bbox_outside_weights"
   top: "loss_bbox"
-  loss_weight: 1
+  loss_weight: 2
 }

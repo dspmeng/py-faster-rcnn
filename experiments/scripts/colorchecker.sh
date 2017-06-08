@@ -49,7 +49,7 @@ LOG="experiments/logs/${MY_NAME}_${NET}_${EXTRA_ARGS_SLUG}.txt.`date +'%Y-%m-%d_
 exec &> >(tee -a "$LOG")
 echo Logging output to "$LOG"
 
-NET_FINAL="output/colorchecker/gehler_trainval/vgg16_colorchecker_iter_10000.caffemodel"
+NET_FINAL="output/colorchecker/gehler_trainval/vgg16_colorchecker_iter_100000.caffemodel"
 if [ -e $NET_FINAL ];then
     echo using $NET_FINAL
 else
